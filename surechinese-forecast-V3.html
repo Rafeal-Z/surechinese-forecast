@@ -1,0 +1,1985 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#FFFFFF">
+<meta name="description" content="SureChinese 增长预测分析平台 · 多市场订阅业务推演沙盘">
+<title>SureChinese · 增长预测分析平台</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg: #F8FAFC;
+  --bg-soft: #F1F5F9;
+  --bg-hover: #E2E8F0;
+  --surface: #FFFFFF;
+  --border: #E2E8F0;
+  --border-strong: #CBD5E1;
+  --text-1: #0F172A;
+  --text-2: #475569;
+  --text-3: #94A3B8;
+  --text-4: #CBD5E1;
+  --brand: #4F46E5;
+  --brand-dark: #3730A3;
+  --brand-soft: #EEF2FF;
+  --brand-line: #C7D2FE;
+  --success: #059669;
+  --success-soft: #D1FAE5;
+  --warn: #D97706;
+  --warn-soft: #FEF3C7;
+  --danger: #DC2626;
+  --danger-soft: #FEE2E2;
+  --info: #0284C7;
+  --info-soft: #E0F2FE;
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-md: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-lg: 0 4px 6px -1px rgba(15, 23, 42, 0.05), 0 2px 4px -2px rgba(15, 23, 42, 0.04);
+  --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei UI', 'Microsoft YaHei', '微软雅黑', 'Hiragino Sans GB', 'WenQuanYi Micro Hei', sans-serif;
+  --mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Monaco, Consolas, 'Liberation Mono', monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 14px; }
+body {
+  background: var(--bg);
+  color: var(--text-1);
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+}
+button { font-family: inherit; }
+input { font-family: inherit; }
+
+/* TOPBAR */
+.topbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  box-shadow: var(--shadow-sm);
+}
+.topbar-inner {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+.brand { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.logo {
+  width: 36px; height: 36px;
+  background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-weight: 700; font-size: 14px;
+  letter-spacing: -0.02em;
+  box-shadow: 0 2px 4px rgba(79, 70, 229, 0.25);
+}
+.brand-text { display: flex; flex-direction: column; gap: 1px; }
+.brand-name { font-size: 15px; font-weight: 600; color: var(--text-1); letter-spacing: -0.01em; }
+.brand-tag { font-size: 11px; color: var(--text-3); font-weight: 500; }
+.topbar-controls { display: flex; gap: 12px; align-items: center; flex: 1; justify-content: center; }
+.topbar-actions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+.seg-group { display: flex; align-items: center; gap: 8px; }
+.seg-label { font-size: 11px; font-weight: 600; color: var(--text-3); letter-spacing: 0.05em; }
+.seg {
+  display: inline-flex;
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 2px;
+}
+.seg button {
+  background: transparent;
+  border: none;
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-2);
+  cursor: pointer;
+  border-radius: 5px;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+.seg button:hover { color: var(--text-1); }
+.seg button.active {
+  background: var(--surface);
+  color: var(--brand);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+  font-weight: 600;
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 7px 14px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text-1);
+  cursor: pointer;
+  border-radius: 7px;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+.btn:hover { background: var(--bg-soft); border-color: var(--border-strong); }
+.btn.primary { background: var(--brand); border-color: var(--brand); color: white; }
+.btn.primary:hover { background: var(--brand-dark); border-color: var(--brand-dark); }
+.btn svg { width: 14px; height: 14px; }
+
+/* DASHBOARD */
+.dashboard {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 24px 24px 80px;
+}
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.page-title-block h1 {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-1);
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+  margin-bottom: 4px;
+}
+.page-title-block p { font-size: 13px; color: var(--text-2); line-height: 1.5; max-width: 680px; }
+.scenario-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: var(--brand-soft);
+  color: var(--brand-dark);
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 12px;
+  border: 1px solid var(--brand-line);
+}
+.scenario-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--brand); }
+
+/* MARKET TABS */
+.market-tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 6px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow-sm);
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+.market-tabs::-webkit-scrollbar { height: 4px; }
+.market-tabs::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 4px; }
+.market-tab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  background: transparent;
+  border: none;
+  border-radius: 7px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-2);
+  white-space: nowrap;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+.market-tab:hover { background: var(--bg-soft); color: var(--text-1); }
+.market-tab.active {
+  background: var(--brand);
+  color: white;
+  font-weight: 600;
+}
+.market-tab.active .market-weight { color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.15); }
+.market-weight {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-3);
+  background: var(--bg-soft);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* KPI */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 24px;
+}
+.kpi {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 18px;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  position: relative;
+  overflow: hidden;
+}
+.kpi:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
+.kpi-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.kpi-label { font-size: 11.5px; font-weight: 600; color: var(--text-2); }
+.kpi-icon {
+  width: 24px; height: 24px;
+  border-radius: 6px;
+  background: var(--brand-soft);
+  color: var(--brand);
+  display: flex; align-items: center; justify-content: center;
+}
+.kpi-icon svg { width: 14px; height: 14px; }
+.kpi-value {
+  font-family: var(--mono);
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--text-1);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 6px;
+}
+.kpi-sub { font-size: 11.5px; color: var(--text-3); font-weight: 500; }
+.kpi-sub.good { color: var(--success); }
+.kpi-sub.warn { color: var(--warn); }
+.kpi-sub.bad  { color: var(--danger); }
+.kpi-value.good { color: var(--success); }
+.kpi-value.warn { color: var(--warn); }
+.kpi-value.bad  { color: var(--danger); }
+.kpi.health-good { border-top: 2px solid var(--success); }
+.kpi.health-warn { border-top: 2px solid var(--warn); }
+.kpi.health-bad  { border-top: 2px solid var(--danger); }
+
+/* SECTION HEAD */
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 8px 0 14px;
+}
+.section-head h2 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-1);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.section-num {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--brand);
+  background: var(--brand-soft);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.section-head .meta { font-size: 12px; color: var(--text-3); }
+
+/* MARKET MATRIX TABLE */
+.matrix-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-sm);
+}
+.matrix-head {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-soft);
+}
+.matrix-head h3 { font-size: 14px; font-weight: 600; color: var(--text-1); margin-bottom: 2px; }
+.matrix-head p { font-size: 12px; color: var(--text-3); }
+.matrix-scroll { overflow-x: auto; }
+.matrix-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+  min-width: 760px;
+}
+.matrix-table th, .matrix-table td {
+  padding: 10px 14px;
+  text-align: right;
+  border-bottom: 1px solid var(--border);
+  font-variant-numeric: tabular-nums;
+}
+.matrix-table th {
+  background: var(--bg-soft);
+  font-weight: 600;
+  color: var(--text-2);
+  font-size: 11.5px;
+  white-space: nowrap;
+}
+.matrix-table th:first-child, .matrix-table td:first-child {
+  text-align: left;
+  font-weight: 500;
+  color: var(--text-1);
+}
+.matrix-table tr:hover td { background: var(--bg-soft); }
+.matrix-table td .mono { font-family: var(--mono); }
+.matrix-table tr.total-row td {
+  background: var(--brand-soft);
+  font-weight: 600;
+  color: var(--brand-dark);
+  border-top: 1px solid var(--brand-line);
+}
+.matrix-table tr.total-row td:first-child { color: var(--brand-dark); font-weight: 700; }
+.cell-good { color: var(--success); font-weight: 500; }
+.cell-warn { color: var(--warn); font-weight: 500; }
+.cell-bad { color: var(--danger); font-weight: 500; }
+
+/* CHARTS */
+.charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.chart-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+}
+.chart-card.full { grid-column: 1 / -1; }
+.chart-head { margin-bottom: 14px; }
+.chart-title { font-size: 14px; font-weight: 600; color: var(--text-1); margin-bottom: 2px; }
+.chart-sub { font-size: 12px; color: var(--text-3); }
+.chart-legend {
+  display: flex; flex-wrap: wrap; gap: 16px;
+  margin-bottom: 12px;
+  font-size: 11.5px;
+  color: var(--text-2);
+  font-weight: 500;
+}
+.legend-dot {
+  display: inline-block;
+  width: 10px; height: 10px;
+  border-radius: 3px;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+.chart-wrap { position: relative; width: 100%; height: 240px; }
+
+/* INSIGHTS */
+.insights {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-sm);
+}
+.insights-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 22px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-soft);
+}
+.insights-icon {
+  width: 28px; height: 28px;
+  border-radius: 7px;
+  background: var(--brand);
+  color: white;
+  display: flex; align-items: center; justify-content: center;
+}
+.insights-icon svg { width: 16px; height: 16px; }
+.insights-title { font-size: 14px; font-weight: 600; color: var(--text-1); }
+.insights-sub { font-size: 11.5px; color: var(--text-3); margin-top: 1px; }
+.insights-body { padding: 20px 22px 22px; }
+.diag-summary {
+  padding: 14px 16px;
+  background: var(--brand-soft);
+  border-left: 3px solid var(--brand);
+  border-radius: 6px;
+  font-size: 13.5px;
+  color: var(--text-1);
+  line-height: 1.7;
+  margin-bottom: 18px;
+}
+.diag-summary.good { background: var(--success-soft); border-left-color: var(--success); }
+.diag-summary.warn { background: var(--warn-soft); border-left-color: var(--warn); }
+.diag-summary.bad { background: var(--danger-soft); border-left-color: var(--danger); }
+.diag-summary strong { font-weight: 600; }
+.action-list h4 {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-1);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.action-item {
+  display: flex;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 10px;
+  transition: border-color 0.15s ease;
+}
+.action-item:hover { border-color: var(--border-strong); }
+.action-item:last-child { margin-bottom: 0; }
+.action-priority {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+  height: fit-content;
+  letter-spacing: 0.05em;
+  flex-shrink: 0;
+}
+.action-priority.p1 { background: var(--danger-soft); color: var(--danger); }
+.action-priority.p2 { background: var(--warn-soft); color: var(--warn); }
+.action-priority.p3 { background: var(--info-soft); color: var(--info); }
+.action-content { flex: 1; min-width: 0; }
+.action-title { font-size: 13.5px; font-weight: 600; color: var(--text-1); margin-bottom: 4px; }
+.action-impact {
+  font-size: 12px;
+  color: var(--text-2);
+  margin-bottom: 8px;
+  line-height: 1.6;
+}
+.action-steps {
+  font-size: 12px;
+  color: var(--text-2);
+  line-height: 1.7;
+  padding-left: 18px;
+}
+.action-steps li { margin-bottom: 3px; }
+.action-steps li::marker { color: var(--brand); }
+.pill {
+  display: inline-block;
+  padding: 1px 7px;
+  border-radius: 4px;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  font-weight: 600;
+  background: var(--bg-soft);
+  color: var(--text-1);
+  border: 1px solid var(--border);
+  margin: 0 1px;
+}
+.pill.good { background: var(--success-soft); color: var(--success); border-color: rgba(5, 150, 105, 0.2); }
+.pill.warn { background: var(--warn-soft); color: var(--warn); border-color: rgba(217, 119, 6, 0.2); }
+.pill.bad { background: var(--danger-soft); color: var(--danger); border-color: rgba(220, 38, 38, 0.2); }
+.pill.brand { background: var(--brand-soft); color: var(--brand-dark); border-color: var(--brand-line); }
+
+/* PARAMS */
+.params-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.params-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+.params-head {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-soft);
+  cursor: pointer;
+  user-select: none;
+}
+.params-head-text h3 { font-size: 14px; font-weight: 600; color: var(--text-1); margin-bottom: 2px; }
+.params-head-text p { font-size: 11.5px; color: var(--text-3); }
+.params-head-actions { display: flex; align-items: center; gap: 10px; }
+.params-head-tag {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--text-3);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+.params-chev {
+  width: 16px; height: 16px;
+  color: var(--text-3);
+  transition: transform 0.2s ease;
+}
+.params-card.collapsed .params-chev { transform: rotate(-90deg); }
+.params-card.collapsed .params-body { display: none; }
+.params-body {
+  padding: 18px 20px 22px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 18px 24px;
+}
+.params-body.global-grid { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+.input-row { display: flex; flex-direction: column; gap: 8px; }
+.input-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+.input-name { font-size: 12.5px; font-weight: 500; color: var(--text-1); line-height: 1.3; }
+.input-val {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--brand);
+  background: var(--brand-soft);
+  padding: 1px 7px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  outline: none;
+  margin: 4px 0 2px;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px; height: 16px;
+  background: var(--surface);
+  border: 2px solid var(--brand);
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(79, 70, 229, 0.3);
+}
+input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+input[type="range"]::-moz-range-thumb {
+  width: 14px; height: 14px;
+  background: var(--surface);
+  border: 2px solid var(--brand);
+  border-radius: 50%;
+  cursor: pointer;
+}
+.input-note { font-size: 11px; color: var(--text-3); line-height: 1.4; }
+
+/* MARKETS SECTION */
+.markets-section { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+.market-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+.market-card-head {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-soft);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+}
+.market-card-title { font-size: 13.5px; font-weight: 600; color: var(--text-1); }
+.market-card-meta {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-3);
+  font-weight: 500;
+}
+.market-card.collapsed .params-chev { transform: rotate(-90deg); }
+.market-card.collapsed .market-card-body { display: none; }
+.market-card-body {
+  padding: 16px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px 18px;
+}
+
+/* FOOTER */
+footer {
+  border-top: 1px solid var(--border);
+  margin-top: 40px;
+  padding: 28px 0 8px;
+}
+.foot-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+.foot-col h4 { font-size: 12px; font-weight: 600; color: var(--text-2); margin-bottom: 8px; }
+.foot-col p { font-size: 12px; color: var(--text-3); line-height: 1.7; }
+.foot-tail {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  font-size: 11px;
+  color: var(--text-3);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* RESPONSIVE */
+@media (max-width: 1280px) {
+  .kpi-grid { grid-template-columns: repeat(4, 1fr); }
+}
+@media (max-width: 1100px) {
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 1024px) {
+  .topbar-inner {
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 12px 20px;
+  }
+  .topbar-controls {
+    order: 3;
+    flex-basis: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    border-top: 1px solid var(--border);
+    padding-top: 12px;
+    margin-top: 4px;
+  }
+  .topbar-actions { margin-left: auto; }
+  .charts-grid { grid-template-columns: 1fr; }
+  .markets-section { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+  html { font-size: 13px; }
+  .dashboard { padding: 18px 14px 60px; }
+  .topbar-inner { padding: 10px 14px; }
+  .brand-tag { display: none; }
+  .page-header { flex-direction: column; }
+  .page-title-block h1 { font-size: 19px; }
+  .page-title-block p { font-size: 12.5px; }
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .kpi { padding: 14px; }
+  .kpi-value { font-size: 18px; }
+  .market-tab { padding: 8px 12px; font-size: 12px; }
+  .chart-card { padding: 16px; }
+  .chart-wrap { height: 220px; }
+  .params-body { grid-template-columns: 1fr; gap: 14px; padding: 14px 16px 18px; }
+  .market-card-body { grid-template-columns: 1fr; gap: 12px; padding: 14px; }
+  .insights-head { padding: 14px 16px; }
+  .insights-body { padding: 16px; }
+  .diag-summary { padding: 12px 14px; font-size: 13px; }
+  .action-item { flex-direction: column; padding: 12px 14px; }
+  .matrix-table { font-size: 11.5px; }
+  .matrix-table th, .matrix-table td { padding: 8px 10px; }
+  .foot-grid { grid-template-columns: 1fr; gap: 18px; }
+  .foot-tail { flex-direction: column; align-items: flex-start; }
+  .seg-label { display: none; }
+  .seg button { padding: 5px 10px; font-size: 11.5px; }
+  .topbar-controls { gap: 8px; padding-top: 10px; }
+  .btn { padding: 6px 11px; font-size: 12px; }
+}
+@media (max-width: 480px) {
+  .kpi-value { font-size: 17px; }
+  .topbar-actions { width: 100%; justify-content: flex-end; }
+}
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <div class="logo">SC</div>
+      <div class="brand-text">
+        <div class="brand-name">SureChinese</div>
+        <div class="brand-tag">增长预测分析平台</div>
+      </div>
+    </div>
+    <div class="topbar-controls">
+      <div class="seg-group">
+        <span class="seg-label">场景</span>
+        <div class="seg" id="seg-scenario">
+          <button data-scenario="conservative">保守</button>
+          <button data-scenario="base" class="active">基准</button>
+          <button data-scenario="aggressive">激进</button>
+        </div>
+      </div>
+      <div class="seg-group">
+        <span class="seg-label">周期</span>
+        <div class="seg" id="seg-horizon">
+          <button data-months="12" class="active">12 个月</button>
+          <button data-months="24">24 个月</button>
+          <button data-months="36">36 个月</button>
+        </div>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <button class="btn" id="btn-reset">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+        重置
+      </button>
+      <button class="btn primary" id="btn-export">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+        导出 CSV
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="dashboard">
+
+  <section class="page-header">
+    <div class="page-title-block">
+      <h1 id="page-title">未来 12 个月增长沙盘</h1>
+      <p>多市场订阅业务推演 · 注册→付费漏斗追踪 · 单位经济与 ROAS 健康度诊断。所有金额以人民币计价,默认汇率 1 美元 = 6.8 人民币(可调)。</p>
+    </div>
+    <div class="scenario-badge">
+      <span class="dot"></span>
+      <span id="scenario-tag">基准场景 · 12 个月</span>
+    </div>
+  </section>
+
+  <nav class="market-tabs" id="market-tabs" aria-label="市场视角切换"></nav>
+
+  <section aria-label="关键指标">
+    <div class="section-head">
+      <h2><span class="section-num">01</span><span id="kpi-title">全球汇总 · 核心指标</span></h2>
+      <span class="meta">实时根据参数计算</span>
+    </div>
+    <div class="kpi-grid" id="kpi-grid">
+      <div class="kpi">
+        <div class="kpi-head">
+          <span class="kpi-label">累计注册用户</span>
+          <span class="kpi-icon"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg></span>
+        </div>
+        <div class="kpi-value" id="m-registered">—</div>
+        <div class="kpi-sub" id="m-registered-sub">—</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-head">
+          <span class="kpi-label">终期付费用户</span>
+          <span class="kpi-icon"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2h2m2-4h10a2 2 0 002-2V9a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg></span>
+        </div>
+        <div class="kpi-value" id="m-payers">—</div>
+        <div class="kpi-sub" id="m-payers-sub">—</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-head">
+          <span class="kpi-label">累计订阅收入</span>
+          <span class="kpi-icon"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></span>
+        </div>
+        <div class="kpi-value" id="m-revenue">—</div>
+        <div class="kpi-sub">人民币(¥)</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-head">
+          <span class="kpi-label">综合 LTV</span>
+          <span class="kpi-icon"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg></span>
+        </div>
+        <div class="kpi-value" id="m-ltv">—</div>
+        <div class="kpi-sub">每付费用户 ¥</div>
+      </div>
+      <div class="kpi" id="kpi-ltvcac">
+        <div class="kpi-head">
+          <span class="kpi-label">LTV / CAC</span>
+          <span class="kpi-icon"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"/></svg></span>
+        </div>
+        <div class="kpi-value" id="m-ltvcac">—</div>
+        <div class="kpi-sub" id="m-ltvcac-sub">—</div>
+      </div>
+      <div class="kpi" id="kpi-roas">
+        <div class="kpi-head">
+          <span class="kpi-label">ROAS(累计)</span>
+          <span class="kpi-icon"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg></span>
+        </div>
+        <div class="kpi-value" id="m-roas">—</div>
+        <div class="kpi-sub" id="m-roas-sub">—</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-head">
+          <span class="kpi-label">累计广告投入</span>
+          <span class="kpi-icon"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/></svg></span>
+        </div>
+        <div class="kpi-value" id="m-spend">—</div>
+        <div class="kpi-sub">人民币(¥)</div>
+      </div>
+      <div class="kpi" id="kpi-margin">
+        <div class="kpi-head">
+          <span class="kpi-label">毛利(收入-广告)</span>
+          <span class="kpi-icon"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></span>
+        </div>
+        <div class="kpi-value" id="m-margin">—</div>
+        <div class="kpi-sub" id="m-margin-sub">—</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="matrix-section" aria-label="各市场对比">
+    <div class="section-head">
+      <h2><span class="section-num">02</span>各市场表现对比</h2>
+      <span class="meta">基于当前参数的横向对比矩阵</span>
+    </div>
+    <div class="matrix-card">
+      <div class="matrix-head">
+        <h3>市场对比矩阵 · 终期数据</h3>
+        <p>横向对比各市场的获客成本、转化效率与盈利能力</p>
+      </div>
+      <div class="matrix-scroll">
+        <table class="matrix-table" id="matrix-table">
+          <thead>
+            <tr>
+              <th>市场</th>
+              <th>投放占比</th>
+              <th>CPI</th>
+              <th>注册转化</th>
+              <th>付费转化</th>
+              <th>有效 CAC</th>
+              <th>LTV</th>
+              <th>LTV/CAC</th>
+              <th>ROAS</th>
+              <th>毛利贡献</th>
+            </tr>
+          </thead>
+          <tbody id="matrix-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section aria-label="趋势图表">
+    <div class="section-head">
+      <h2><span class="section-num">03</span>增长趋势</h2>
+      <span class="meta">基于 cohort 续费建模</span>
+    </div>
+    <div class="charts-grid">
+      <div class="chart-card">
+        <div class="chart-head">
+          <div class="chart-title">付费用户结构演变</div>
+          <div class="chart-sub">月订 vs 年订用户数随时间变化</div>
+        </div>
+        <div class="chart-legend">
+          <span><span class="legend-dot" style="background:#6366F1"></span>月订阅</span>
+          <span><span class="legend-dot" style="background:#059669"></span>年订阅</span>
+        </div>
+        <div class="chart-wrap"><canvas id="ch-users"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-head">
+          <div class="chart-title">月度收入 vs 广告支出</div>
+          <div class="chart-sub">订阅收入与获客投入对比(人民币)</div>
+        </div>
+        <div class="chart-legend">
+          <span><span class="legend-dot" style="background:#059669"></span>月度收入</span>
+          <span><span class="legend-dot" style="background:#DC2626"></span>月度广告</span>
+        </div>
+        <div class="chart-wrap"><canvas id="ch-rev"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-head">
+          <div class="chart-title">单位经济模型走势 (LTV/CAC) 与累计毛利</div>
+          <div class="chart-sub">左轴:LTV/CAC 比值 · 右轴:累计现金流(¥)</div>
+        </div>
+        <div class="chart-legend">
+          <span><span class="legend-dot" style="background:#4F46E5"></span>LTV / CAC</span>
+          <span><span class="legend-dot" style="background:#D97706"></span>累计毛利(¥)</span>
+        </div>
+        <div class="chart-wrap"><canvas id="ch-ltv"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-head">
+          <div class="chart-title">ROAS 走势(订阅收入/广告投入)</div>
+          <div class="chart-sub">月度 ROAS 与累计 ROAS · 100% 为盈亏平衡线</div>
+        </div>
+        <div class="chart-legend">
+          <span><span class="legend-dot" style="background:#0EA5E9"></span>月度 ROAS</span>
+          <span><span class="legend-dot" style="background:#4F46E5"></span>累计 ROAS</span>
+          <span><span class="legend-dot" style="background:#DC2626;border-radius:0;height:2px;margin-top:4px"></span>盈亏平衡线</span>
+        </div>
+        <div class="chart-wrap"><canvas id="ch-roas"></canvas></div>
+      </div>
+    </div>
+  </section>
+
+  <section aria-label="智能诊断">
+    <div class="section-head">
+      <h2><span class="section-num">04</span>智能诊断与行动建议</h2>
+      <span class="meta">基于当前数据自动生成 · 按 ROI 排序</span>
+    </div>
+    <div class="insights">
+      <div class="insights-head">
+        <div class="insights-icon">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        </div>
+        <div>
+          <div class="insights-title">业务健康度诊断 · 可执行行动清单</div>
+          <div class="insights-sub" id="insights-sub">综合评估 + 排序后的具体落地建议</div>
+        </div>
+      </div>
+      <div class="insights-body" id="insights-body"></div>
+    </div>
+  </section>
+
+  <section aria-label="参数校准">
+    <div class="section-head">
+      <h2><span class="section-num">05</span>参数校准</h2>
+      <span class="meta">所有输入自动保存到浏览器</span>
+    </div>
+    <div class="params-grid">
+
+      <div class="params-card" id="global-params-card">
+        <div class="params-head" data-collapse-target="global-params-card">
+          <div class="params-head-text">
+            <h3>全球运营假设(跨市场通用)</h3>
+            <p>对整体增长能力的判断 + 起点数据 + 汇率</p>
+          </div>
+          <div class="params-head-actions">
+            <span class="params-head-tag">全局参数</span>
+            <svg class="params-chev" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+          </div>
+        </div>
+        <div class="params-body global-grid" id="global-grid"></div>
+      </div>
+
+      <div class="params-card" id="markets-card">
+        <div class="params-head" data-collapse-target="markets-card">
+          <div class="params-head-text">
+            <h3>各市场参数</h3>
+            <p>6 个目标国家的独立参数 · 点击展开 / 折叠</p>
+          </div>
+          <div class="params-head-actions">
+            <span class="params-head-tag">市场级参数</span>
+            <svg class="params-chev" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+          </div>
+        </div>
+        <div class="markets-section" id="markets-section"></div>
+      </div>
+
+    </div>
+  </section>
+
+  <footer>
+    <div class="foot-grid">
+      <div class="foot-col">
+        <h4>模型逻辑</h4>
+        <p>基于 cohort 的递归预测。漏斗:install → 注册(全局共用)→ 付费(各市场独立)。月订按月流失率衰减;年订在 12/24/36 月面临续费,二次续费按 1.25× 提升(上限 98%)。有效 CAC 已扣除自然量稀释。</p>
+      </div>
+      <div class="foot-col">
+        <h4>诊断逻辑</h4>
+        <p>诊断分为三层:健康度结论 → 按 ROI 排序的 3-5 条行动建议 → 各市场差异化策略。每条建议含当前值、目标值、预期影响与具体落地动作。</p>
+      </div>
+      <div class="foot-col">
+        <h4>使用说明</h4>
+        <p>输入自动保存到本地浏览器。汇率默认 1 美元 = 6.8 人民币(可调)。文件可直接分享或部署到 Vercel/Netlify/GitHub Pages 形成公开链接。</p>
+      </div>
+    </div>
+    <div class="foot-tail">
+      <span>SureChinese · 增长预测分析平台 v3.0 · 6 国独立建模</span>
+      <span>为全球中文学习订阅产品打造</span>
+    </div>
+  </footer>
+
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  const STORAGE_KEY = 'sc-forecast-v4';
+
+  const marketsConfig = {
+    jp: { id:'jp', name:'日本',   short:'JP',
+          defaults: { weight:20, organic:22, regToPaid:4.8, monthlyARPPU:98,  annualARPPU:628, monthlyRatio:48, monthlyChurn:20, annualRenewal:55, cpi:62 } },
+    kr: { id:'kr', name:'韩国',   short:'KR',
+          defaults: { weight:12, organic:24, regToPaid:4.2, monthlyARPPU:85,  annualARPPU:548, monthlyRatio:52, monthlyChurn:24, annualRenewal:48, cpi:48 } },
+    us: { id:'us', name:'美国',   short:'US',
+          defaults: { weight:25, organic:32, regToPaid:3.8, monthlyARPPU:105, annualARPPU:698, monthlyRatio:55, monthlyChurn:26, annualRenewal:45, cpi:75 } },
+    id: { id:'id', name:'印尼',   short:'ID',
+          defaults: { weight:16, organic:28, regToPaid:2.5, monthlyARPPU:35,  annualARPPU:248, monthlyRatio:62, monthlyChurn:34, annualRenewal:32, cpi:14 } },
+    th: { id:'th', name:'泰国',   short:'TH',
+          defaults: { weight:14, organic:26, regToPaid:2.9, monthlyARPPU:45,  annualARPPU:298, monthlyRatio:58, monthlyChurn:30, annualRenewal:38, cpi:22 } },
+    vn: { id:'vn', name:'越南',   short:'VN',
+          defaults: { weight:13, organic:26, regToPaid:2.7, monthlyARPPU:38,  annualARPPU:258, monthlyRatio:63, monthlyChurn:33, annualRenewal:30, cpi:14 } }
+  };
+  const marketIds = ['jp', 'kr', 'us', 'id', 'th', 'vn'];
+
+  const marketDefs = [
+    { id: 'weight',         label: '投放占比', hint: '该市场分配的 install 份额(相对权重)', min: 0,  max: 100, step: 1,   fmt: 'pct' },
+    { id: 'organic',        label: '自然量比例', hint: '非投放带来的 install 占比',          min: 0,  max: 60,  step: 1,   fmt: 'pct' },
+    { id: 'regToPaid',      label: '注册→付费 转化率', hint: '注册用户中转化为付费的比例', min: 0.5, max: 10,  step: 0.1, fmt: 'pct1' },
+    { id: 'monthlyARPPU',   label: '月订 ARPPU(¥)', hint: '月订阅每用户月均收入',          min: 20, max: 200, step: 1,   fmt: 'rmb' },
+    { id: 'annualARPPU',    label: '年订 ARPPU(¥)', hint: '年订阅一次性收入',              min: 100,max: 1500,step: 5,   fmt: 'rmb' },
+    { id: 'monthlyRatio',   label: '月订占比', hint: '月订占新增付费的比例,其余为年订',     min: 20, max: 80,  step: 1,   fmt: 'pct' },
+    { id: 'monthlyChurn',   label: '月订月流失率', hint: '月订用户每月流失比例',             min: 10, max: 50,  step: 1,   fmt: 'pct' },
+    { id: 'annualRenewal',  label: '年订续费率', hint: '年订到期后的续费比例',               min: 20, max: 70,  step: 1,   fmt: 'pct' },
+    { id: 'cpi',            label: 'CPI 单价(¥)', hint: '该市场单次付费 install 的成本',    min: 5,  max: 200, step: 1,   fmt: 'rmb' }
+  ];
+
+  const globalDefs = [
+    { id: 'totalInstalls',    label: '总月新增 install', hint: '所有市场合计的月新增安装数', min: 5000, max: 500000, step: 1000, def: 25000, fmt: 'k' },
+    { id: 'startRegistered',  label: '当前累计注册用户', hint: '产品上线至今总注册数',     min: 5000, max: 500000, step: 1000, def: 50000, fmt: 'k' },
+    { id: 'startPaying',      label: '当前付费用户',     hint: '月订 + 年订合计',          min: 500,  max: 200000, step: 500,  def: 8000,  fmt: 'k' },
+    { id: 'installToReg',     label: 'install→注册 转化', hint: '行业基准 65–85%',          min: 30,   max: 95,     step: 1,    def: 75,    fmt: 'pct' },
+    { id: 'growth',           label: '月度 install 增速', hint: '环比增速(运营 + 投放)',  min: 0,    max: 20,     step: 0.5,  def: 6,     fmt: 'pct1' },
+    { id: 'cacInflation',     label: 'CAC 月度通胀',     hint: '获客成本上涨压力',          min: 0,    max: 8,      step: 0.5,  def: 3,     fmt: 'pct1' },
+    { id: 'convImprovement',  label: '年度转化提升',     hint: '产品 + 运营优化效果(12 月)', min: 0,   max: 50,     step: 1,    def: 12,    fmt: 'pct' },
+    { id: 'exchangeRate',     label: '美元汇率(USD→¥)', hint: '默认 6.8,可根据实际调整',  min: 5,    max: 8,      step: 0.05, def: 6.8,   fmt: 'rate' }
+  ];
+
+  const scenarios = {
+    conservative: { growth: 0.5, conv: 0.5, renewal: 0.85, label: '保守场景' },
+    base:         { growth: 1.0, conv: 1.0, renewal: 1.0,  label: '基准场景' },
+    aggressive:   { growth: 1.5, conv: 1.5, renewal: 1.10, label: '激进场景' }
+  };
+
+  let scenario = 'base';
+  let horizon = 12;
+  let activeMarket = 'global';
+  let state = {};
+  let charts = {};
+
+  function defaultState() {
+    const s = { global: {}, markets: {} };
+    globalDefs.forEach(function (d) { s.global[d.id] = d.def; });
+    marketIds.forEach(function (mid) {
+      s.markets[mid] = Object.assign({}, marketsConfig[mid].defaults);
+    });
+    return s;
+  }
+
+  function loadState() {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        state = parsed.state || defaultState();
+        scenario = parsed.scenario || 'base';
+        horizon = parsed.horizon || 12;
+        activeMarket = parsed.activeMarket || 'global';
+        if (!state.global) state.global = {};
+        if (!state.markets) state.markets = {};
+        globalDefs.forEach(function (d) { if (state.global[d.id] === undefined) state.global[d.id] = d.def; });
+        marketIds.forEach(function (mid) {
+          if (!state.markets[mid]) state.markets[mid] = Object.assign({}, marketsConfig[mid].defaults);
+          marketDefs.forEach(function (d) { if (state.markets[mid][d.id] === undefined) state.markets[mid][d.id] = marketsConfig[mid].defaults[d.id]; });
+        });
+        return;
+      }
+    } catch (e) {}
+    state = defaultState();
+  }
+
+  function saveState() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ state: state, scenario: scenario, horizon: horizon, activeMarket: activeMarket }));
+    } catch (e) {}
+  }
+
+  function fmtValue(fmt, v) {
+    switch (fmt) {
+      case 'k':    return v >= 10000 ? Math.round(v / 1000) + 'K' : (v >= 1000 ? (v / 1000).toFixed(1) + 'K' : Math.round(v).toString());
+      case 'pct':  return Math.round(v) + '%';
+      case 'pct1': return v.toFixed(1) + '%';
+      case 'rmb':  return '¥' + Math.round(v);
+      case 'rate': return v.toFixed(2);
+      default: return v;
+    }
+  }
+
+  function fmtNum(n) {
+    if (Math.abs(n) >= 1e8) return (n / 1e8).toFixed(2) + '亿';
+    if (Math.abs(n) >= 1e4) return (n / 1e4).toFixed(1) + '万';
+    if (Math.abs(n) >= 1e3) return (n / 1e3).toFixed(1) + 'K';
+    return Math.round(n).toString();
+  }
+
+  function fmtRMB(n) {
+    const sign = n < 0 ? '-' : '';
+    const a = Math.abs(n);
+    if (a >= 1e8) return sign + '¥' + (a / 1e8).toFixed(2) + '亿';
+    if (a >= 1e4) return sign + '¥' + (a / 1e4).toFixed(1) + '万';
+    if (a >= 1e3) return sign + '¥' + Math.round(a / 1000) + 'K';
+    return sign + '¥' + Math.round(a);
+  }
+
+  function fmtRMBplain(n) {
+    const a = Math.abs(n);
+    if (a >= 1e8) return (a / 1e8).toFixed(2) + ' 亿';
+    if (a >= 1e4) return (a / 1e4).toFixed(1) + ' 万';
+    return Math.round(a).toLocaleString();
+  }
+
+  function fmtPct(n) {
+    if (Math.abs(n) >= 1000) return Math.round(n) + '%';
+    if (Math.abs(n) >= 100) return Math.round(n) + '%';
+    return n.toFixed(1) + '%';
+  }
+
+  function getNormalizedWeights() {
+    let total = 0;
+    marketIds.forEach(function (mid) { total += state.markets[mid].weight; });
+    if (total === 0) total = 1;
+    const w = {};
+    marketIds.forEach(function (mid) { w[mid] = state.markets[mid].weight / total; });
+    return w;
+  }
+
+  function calculateMarket(mid, monthlyInstalls, startPaying) {
+    const m = state.markets[mid];
+    const g = state.global;
+    const mult = scenarios[scenario];
+
+    const installToReg = g.installToReg / 100;
+    const regToPaid = (m.regToPaid / 100) * mult.conv;
+    const monthlyRatio = m.monthlyRatio / 100;
+    const monthlyChurn = m.monthlyChurn / 100;
+    const annualRenewal = Math.min(0.95, (m.annualRenewal / 100) * mult.renewal);
+    const annualRenewal2 = Math.min(0.98, annualRenewal * 1.25);
+    const annualRenewal3 = Math.min(0.98, annualRenewal2 * 1.10);
+    const organicRatio = m.organic / 100;
+    const installGrowth = (g.growth / 100) * mult.growth;
+    const cacInflation = g.cacInflation / 100;
+    const convImpr = (g.convImprovement / 100);
+
+    const startMonthly = startPaying * monthlyRatio;
+    const startAnnual = startPaying * (1 - monthlyRatio);
+    const annualCohorts = [];
+    for (let i = -11; i <= 0; i++) annualCohorts.push({ start: i, count: startAnnual / 12, renewals: 0 });
+
+    let monthlyPayers = startMonthly;
+    let cumRevenue = 0;
+    let cumSpend = 0;
+    let cumNewRegistered = 0;
+    const series = [];
+
+    for (let n = 1; n <= horizon; n++) {
+      for (let i = 0; i < annualCohorts.length; i++) {
+        const c = annualCohorts[i];
+        const renewMonth = c.start + 12 * (c.renewals + 1);
+        if (renewMonth === n) {
+          const rate = c.renewals === 0 ? annualRenewal : (c.renewals === 1 ? annualRenewal2 : annualRenewal3);
+          c.count = c.count * rate;
+          c.renewals += 1;
+        }
+      }
+      const installs = monthlyInstalls * Math.pow(1 + installGrowth, n);
+      const convFactor = 1 + convImpr * Math.min(1, n / 12);
+      const effectiveRegToPaid = regToPaid * convFactor;
+      const newRegistered = installs * installToReg;
+      const newPaid = newRegistered * effectiveRegToPaid;
+      const newMonthly = newPaid * monthlyRatio;
+      const newAnnual = newPaid * (1 - monthlyRatio);
+      cumNewRegistered += newRegistered;
+
+      monthlyPayers = monthlyPayers * (1 - monthlyChurn) + newMonthly;
+      annualCohorts.push({ start: n, count: newAnnual, renewals: 0 });
+      let annualPayers = 0;
+      for (let i = 0; i < annualCohorts.length; i++) annualPayers += annualCohorts[i].count;
+
+      const revenue = monthlyPayers * m.monthlyARPPU + annualPayers * (m.annualARPPU / 12);
+      cumRevenue += revenue;
+
+      const cpiNow = m.cpi * Math.pow(1 + cacInflation, n);
+      const paidInstalls = installs * (1 - organicRatio);
+      const spend = paidInstalls * cpiNow;
+      cumSpend += spend;
+
+      const monthlyLifetime = 1 / Math.max(0.05, monthlyChurn);
+      const annualLifetime = 12 / Math.max(0.08, 1 - annualRenewal);
+      const blendedLTV = monthlyRatio * (m.monthlyARPPU * monthlyLifetime) + (1 - monthlyRatio) * ((m.annualARPPU / 12) * annualLifetime);
+      const effectiveCAC = ((1 - organicRatio) * cpiNow) / Math.max(0.005, installToReg * effectiveRegToPaid);
+      const ltvCac = blendedLTV / effectiveCAC;
+      const roas = cumSpend > 0 ? cumRevenue / cumSpend : 0;
+      const monthlyRoas = spend > 0 ? revenue / spend : 0;
+
+      series.push({
+        n: n,
+        installs: installs,
+        newRegistered: newRegistered,
+        newPaid: newPaid,
+        monthlyPayers: monthlyPayers,
+        annualPayers: annualPayers,
+        totalPayers: monthlyPayers + annualPayers,
+        revenue: revenue,
+        cumRevenue: cumRevenue,
+        spend: spend,
+        cumSpend: cumSpend,
+        cpi: cpiNow,
+        effectiveCAC: effectiveCAC,
+        ltv: blendedLTV,
+        ltvCac: ltvCac,
+        roas: roas,
+        monthlyRoas: monthlyRoas,
+        cumMargin: cumRevenue - cumSpend,
+        cumRegistered: cumNewRegistered
+      });
+    }
+
+    const last = series[series.length - 1];
+    return {
+      mid: mid,
+      series: series,
+      startMonthly: startMonthly,
+      startAnnual: startAnnual,
+      startPaying: startPaying,
+      finalLTV: last.ltv,
+      finalLTVCAC: last.ltvCac,
+      finalROAS: last.roas,
+      finalEffectiveCAC: last.effectiveCAC,
+      finalCPI: last.cpi,
+      finalPayers: last.totalPayers,
+      finalAnnualPayers: last.annualPayers,
+      totalNewRegistered: last.cumRegistered,
+      totalRevenue: last.cumRevenue,
+      totalSpend: last.cumSpend,
+      margin: last.cumRevenue - last.cumSpend,
+      annualLifetimeMonths: 12 / Math.max(0.08, 1 - annualRenewal),
+      annualRenewalEffective: annualRenewal
+    };
+  }
+
+  function aggregateMarkets(marketResults) {
+    const allSeries = marketResults[marketIds[0]].series.map(function (_, idx) {
+      const agg = {
+        n: idx + 1, installs: 0, newRegistered: 0, newPaid: 0,
+        monthlyPayers: 0, annualPayers: 0, totalPayers: 0,
+        revenue: 0, cumRevenue: 0, spend: 0, cumSpend: 0,
+        cumMargin: 0, cumRegistered: 0
+      };
+      marketIds.forEach(function (mid) {
+        const p = marketResults[mid].series[idx];
+        agg.installs += p.installs;
+        agg.newRegistered += p.newRegistered;
+        agg.newPaid += p.newPaid;
+        agg.monthlyPayers += p.monthlyPayers;
+        agg.annualPayers += p.annualPayers;
+        agg.totalPayers += p.totalPayers;
+        agg.revenue += p.revenue;
+        agg.cumRevenue += p.cumRevenue;
+        agg.spend += p.spend;
+        agg.cumSpend += p.cumSpend;
+        agg.cumMargin += p.cumMargin;
+        agg.cumRegistered += p.cumRegistered;
+      });
+      agg.roas = agg.cumSpend > 0 ? agg.cumRevenue / agg.cumSpend : 0;
+      agg.monthlyRoas = agg.spend > 0 ? agg.revenue / agg.spend : 0;
+      return agg;
+    });
+
+    let totalLTVWeighted = 0;
+    let totalCACWeighted = 0;
+    let totalPayersForWeight = 0;
+    marketIds.forEach(function (mid) {
+      const r = marketResults[mid];
+      const w = r.finalPayers;
+      totalLTVWeighted += r.finalLTV * w;
+      totalCACWeighted += r.finalEffectiveCAC * w;
+      totalPayersForWeight += w;
+    });
+    const blendedLTV = totalPayersForWeight > 0 ? totalLTVWeighted / totalPayersForWeight : 0;
+    const blendedCAC = totalPayersForWeight > 0 ? totalCACWeighted / totalPayersForWeight : 0;
+
+    let startMonthly = 0, startAnnual = 0, startPaying = 0;
+    marketIds.forEach(function (mid) {
+      startMonthly += marketResults[mid].startMonthly;
+      startAnnual += marketResults[mid].startAnnual;
+      startPaying += marketResults[mid].startPaying;
+    });
+
+    const last = allSeries[allSeries.length - 1];
+    return {
+      mid: 'global',
+      series: allSeries,
+      startMonthly: startMonthly,
+      startAnnual: startAnnual,
+      startPaying: startPaying,
+      finalLTV: blendedLTV,
+      finalLTVCAC: blendedLTV / Math.max(1, blendedCAC),
+      finalROAS: last.roas,
+      finalEffectiveCAC: blendedCAC,
+      finalPayers: last.totalPayers,
+      finalAnnualPayers: last.annualPayers,
+      totalNewRegistered: last.cumRegistered,
+      totalRevenue: last.cumRevenue,
+      totalSpend: last.cumSpend,
+      margin: last.cumRevenue - last.cumSpend
+    };
+  }
+
+  function computeAll() {
+    const w = getNormalizedWeights();
+    const g = state.global;
+    const totalInstalls = g.totalInstalls;
+    const totalStartPaying = g.startPaying;
+    const marketResults = {};
+    marketIds.forEach(function (mid) {
+      const mInstalls = totalInstalls * w[mid];
+      const mStartPaying = totalStartPaying * w[mid];
+      marketResults[mid] = calculateMarket(mid, mInstalls, mStartPaying);
+    });
+    const global = aggregateMarkets(marketResults);
+    global.totalNewRegistered = global.series[global.series.length - 1].cumRegistered;
+    return { markets: marketResults, global: global };
+  }
+
+  function buildMarketTabs() {
+    const container = document.getElementById('market-tabs');
+    container.innerHTML = '';
+    const tabs = [{ id: 'global', name: '全球汇总' }].concat(marketIds.map(function (mid) {
+      return { id: mid, name: marketsConfig[mid].name };
+    }));
+    const w = getNormalizedWeights();
+    tabs.forEach(function (t) {
+      const btn = document.createElement('button');
+      btn.className = 'market-tab' + (t.id === activeMarket ? ' active' : '');
+      btn.dataset.market = t.id;
+      if (t.id === 'global') {
+        btn.innerHTML = '<span>' + t.name + '</span><span class="market-weight">100%</span>';
+      } else {
+        btn.innerHTML = '<span>' + t.name + '</span><span class="market-weight">' + Math.round(w[t.id] * 100) + '%</span>';
+      }
+      btn.addEventListener('click', function () {
+        activeMarket = t.id;
+        document.querySelectorAll('.market-tab').forEach(function (b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+        saveState();
+        render();
+      });
+      container.appendChild(btn);
+    });
+  }
+
+  function buildGlobalParams() {
+    const grid = document.getElementById('global-grid');
+    grid.innerHTML = '';
+    globalDefs.forEach(function (d) {
+      const row = document.createElement('div');
+      row.className = 'input-row';
+      row.innerHTML =
+        '<div class="input-head">' +
+          '<span class="input-name">' + d.label + '</span>' +
+          '<span class="input-val" id="gv-' + d.id + '">' + fmtValue(d.fmt, state.global[d.id]) + '</span>' +
+        '</div>' +
+        '<input type="range" id="gr-' + d.id + '" min="' + d.min + '" max="' + d.max + '" step="' + d.step + '" value="' + state.global[d.id] + '" aria-label="' + d.label + '">' +
+        '<span class="input-note">' + d.hint + '</span>';
+      grid.appendChild(row);
+      const input = row.querySelector('input');
+      input.addEventListener('input', function () {
+        state.global[d.id] = +input.value;
+        document.getElementById('gv-' + d.id).textContent = fmtValue(d.fmt, state.global[d.id]);
+        saveState();
+        render();
+      });
+    });
+  }
+
+  function buildMarketParams() {
+    const container = document.getElementById('markets-section');
+    container.innerHTML = '';
+    marketIds.forEach(function (mid) {
+      const cfg = marketsConfig[mid];
+      const card = document.createElement('div');
+      card.className = 'market-card';
+      card.id = 'mc-' + mid;
+      const w = getNormalizedWeights();
+      card.innerHTML =
+        '<div class="market-card-head" data-toggle="mc-' + mid + '">' +
+          '<div>' +
+            '<div class="market-card-title">' + cfg.name + '</div>' +
+            '<div class="market-card-meta">归一化权重 <span id="weight-meta-' + mid + '">' + Math.round(w[mid] * 100) + '%</span></div>' +
+          '</div>' +
+          '<svg class="params-chev" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>' +
+        '</div>' +
+        '<div class="market-card-body" id="mb-' + mid + '"></div>';
+      container.appendChild(card);
+      const body = card.querySelector('.market-card-body');
+      marketDefs.forEach(function (d) {
+        const row = document.createElement('div');
+        row.className = 'input-row';
+        row.innerHTML =
+          '<div class="input-head">' +
+            '<span class="input-name">' + d.label + '</span>' +
+            '<span class="input-val" id="mv-' + mid + '-' + d.id + '">' + fmtValue(d.fmt, state.markets[mid][d.id]) + '</span>' +
+          '</div>' +
+          '<input type="range" id="mr-' + mid + '-' + d.id + '" min="' + d.min + '" max="' + d.max + '" step="' + d.step + '" value="' + state.markets[mid][d.id] + '" aria-label="' + d.label + ' · ' + cfg.name + '">' +
+          '<span class="input-note">' + d.hint + '</span>';
+        body.appendChild(row);
+        const input = row.querySelector('input');
+        input.addEventListener('input', function () {
+          state.markets[mid][d.id] = +input.value;
+          document.getElementById('mv-' + mid + '-' + d.id).textContent = fmtValue(d.fmt, state.markets[mid][d.id]);
+          saveState();
+          if (d.id === 'weight') {
+            const newW = getNormalizedWeights();
+            marketIds.forEach(function (otherMid) {
+              const el = document.getElementById('weight-meta-' + otherMid);
+              if (el) el.textContent = Math.round(newW[otherMid] * 100) + '%';
+            });
+            buildMarketTabs();
+          }
+          render();
+        });
+      });
+    });
+  }
+
+  function bindCollapsibles() {
+    document.querySelectorAll('[data-collapse-target]').forEach(function (head) {
+      head.addEventListener('click', function () {
+        const target = document.getElementById(head.dataset.collapseTarget);
+        target.classList.toggle('collapsed');
+      });
+    });
+    document.querySelectorAll('[data-toggle]').forEach(function (head) {
+      head.addEventListener('click', function () {
+        const target = document.getElementById(head.dataset.toggle);
+        target.classList.toggle('collapsed');
+      });
+    });
+  }
+
+  function getCurrentResult(all) {
+    return activeMarket === 'global' ? all.global : all.markets[activeMarket];
+  }
+
+  function renderKPIs(all) {
+    const r = getCurrentResult(all);
+    const title = activeMarket === 'global' ? '全球汇总 · 核心指标' : marketsConfig[activeMarket].name + ' · 核心指标';
+    document.getElementById('kpi-title').textContent = title;
+
+    let startReg;
+    if (activeMarket === 'global') {
+      startReg = state.global.startRegistered;
+    } else {
+      const w = getNormalizedWeights();
+      startReg = state.global.startRegistered * w[activeMarket];
+    }
+    const totalRegistered = startReg + r.totalNewRegistered;
+    document.getElementById('m-registered').textContent = fmtNum(totalRegistered);
+    const newRegPct = startReg > 0 ? (r.totalNewRegistered / startReg * 100) : 0;
+    const regSub = document.getElementById('m-registered-sub');
+    regSub.textContent = '本期新增 ' + fmtNum(r.totalNewRegistered) + ' (+' + Math.round(newRegPct) + '%)';
+    regSub.className = 'kpi-sub good';
+
+    document.getElementById('m-payers').textContent = fmtNum(r.finalPayers);
+    const growth = (r.finalPayers / Math.max(1, r.startPaying) - 1) * 100;
+    const pSub = document.getElementById('m-payers-sub');
+    pSub.textContent = (growth >= 0 ? '↑ +' : '↓ ') + Math.round(Math.abs(growth)) + '% vs 起点';
+    pSub.className = growth >= 0 ? 'kpi-sub good' : 'kpi-sub bad';
+
+    document.getElementById('m-revenue').textContent = fmtRMB(r.totalRevenue);
+    document.getElementById('m-ltv').textContent = '¥' + Math.round(r.finalLTV);
+
+    const lvEl = document.getElementById('m-ltvcac');
+    const lvSub = document.getElementById('m-ltvcac-sub');
+    const lvCard = document.getElementById('kpi-ltvcac');
+    lvEl.textContent = r.finalLTVCAC.toFixed(2);
+    lvCard.classList.remove('health-good', 'health-warn', 'health-bad');
+    if (r.finalLTVCAC >= 3)        { lvEl.className = 'kpi-value good'; lvSub.className = 'kpi-sub good'; lvSub.textContent = '健康 ≥ 3'; lvCard.classList.add('health-good'); }
+    else if (r.finalLTVCAC >= 1.5) { lvEl.className = 'kpi-value warn'; lvSub.className = 'kpi-sub warn'; lvSub.textContent = '可优化 1.5–3'; lvCard.classList.add('health-warn'); }
+    else                           { lvEl.className = 'kpi-value bad';  lvSub.className = 'kpi-sub bad';  lvSub.textContent = '亏损区 < 1.5'; lvCard.classList.add('health-bad'); }
+
+    const roasEl = document.getElementById('m-roas');
+    const roasSub = document.getElementById('m-roas-sub');
+    const roasCard = document.getElementById('kpi-roas');
+    roasEl.textContent = (r.finalROAS * 100).toFixed(0) + '%';
+    roasCard.classList.remove('health-good', 'health-warn', 'health-bad');
+    if (r.finalROAS >= 1.5)      { roasEl.className = 'kpi-value good'; roasSub.className = 'kpi-sub good'; roasSub.textContent = '盈利模式跑通'; roasCard.classList.add('health-good'); }
+    else if (r.finalROAS >= 1.0) { roasEl.className = 'kpi-value warn'; roasSub.className = 'kpi-sub warn'; roasSub.textContent = '接近平衡'; roasCard.classList.add('health-warn'); }
+    else                         { roasEl.className = 'kpi-value bad';  roasSub.className = 'kpi-sub bad';  roasSub.textContent = '投入大于收入'; roasCard.classList.add('health-bad'); }
+
+    document.getElementById('m-spend').textContent = fmtRMB(r.totalSpend);
+
+    const mEl = document.getElementById('m-margin');
+    const mSub = document.getElementById('m-margin-sub');
+    const mCard = document.getElementById('kpi-margin');
+    mEl.textContent = fmtRMB(r.margin);
+    mCard.classList.remove('health-good', 'health-warn', 'health-bad');
+    if (r.margin > 0) { mEl.className = 'kpi-value good'; mSub.className = 'kpi-sub good'; mSub.textContent = '✓ 正现金流'; mCard.classList.add('health-good'); }
+    else              { mEl.className = 'kpi-value bad';  mSub.className = 'kpi-sub bad';  mSub.textContent = '⚠ 投资期'; mCard.classList.add('health-bad'); }
+  }
+
+  function renderMatrix(all) {
+    const tbody = document.getElementById('matrix-body');
+    const section = document.getElementById('matrix-section');
+    section.style.display = activeMarket === 'global' ? '' : 'none';
+    if (activeMarket !== 'global') return;
+
+    const w = getNormalizedWeights();
+    tbody.innerHTML = '';
+    const g = state.global;
+
+    let totalRev = 0, totalSpend = 0, totalPayers = 0;
+
+    marketIds.forEach(function (mid) {
+      const r = all.markets[mid];
+      const m = state.markets[mid];
+      totalRev += r.totalRevenue;
+      totalSpend += r.totalSpend;
+      totalPayers += r.finalPayers;
+      const cellLtvCac = r.finalLTVCAC.toFixed(2);
+      const ltvCacClass = r.finalLTVCAC >= 3 ? 'cell-good' : (r.finalLTVCAC >= 1.5 ? 'cell-warn' : 'cell-bad');
+      const cellRoas = (r.finalROAS * 100).toFixed(0) + '%';
+      const roasClass = r.finalROAS >= 1.5 ? 'cell-good' : (r.finalROAS >= 1 ? 'cell-warn' : 'cell-bad');
+      const marginClass = r.margin >= 0 ? 'cell-good' : 'cell-bad';
+      const totalConv = (g.installToReg / 100) * (m.regToPaid / 100) * 100;
+      tbody.innerHTML +=
+        '<tr>' +
+          '<td>' + marketsConfig[mid].name + '</td>' +
+          '<td><span class="mono">' + Math.round(w[mid] * 100) + '%</span></td>' +
+          '<td><span class="mono">¥' + Math.round(r.finalCPI) + '</span></td>' +
+          '<td><span class="mono">' + g.installToReg + '%</span></td>' +
+          '<td><span class="mono">' + totalConv.toFixed(2) + '%</span></td>' +
+          '<td><span class="mono">¥' + Math.round(r.finalEffectiveCAC) + '</span></td>' +
+          '<td><span class="mono">¥' + Math.round(r.finalLTV) + '</span></td>' +
+          '<td class="' + ltvCacClass + '"><span class="mono">' + cellLtvCac + '</span></td>' +
+          '<td class="' + roasClass + '"><span class="mono">' + cellRoas + '</span></td>' +
+          '<td class="' + marginClass + '"><span class="mono">' + fmtRMB(r.margin) + '</span></td>' +
+        '</tr>';
+    });
+
+    const totalRoas = totalSpend > 0 ? totalRev / totalSpend : 0;
+    tbody.innerHTML +=
+      '<tr class="total-row">' +
+        '<td>全球汇总</td>' +
+        '<td><span class="mono">100%</span></td>' +
+        '<td>—</td>' +
+        '<td><span class="mono">' + g.installToReg + '%</span></td>' +
+        '<td>—</td>' +
+        '<td><span class="mono">¥' + Math.round(all.global.finalEffectiveCAC) + '</span></td>' +
+        '<td><span class="mono">¥' + Math.round(all.global.finalLTV) + '</span></td>' +
+        '<td><span class="mono">' + all.global.finalLTVCAC.toFixed(2) + '</span></td>' +
+        '<td><span class="mono">' + (totalRoas * 100).toFixed(0) + '%</span></td>' +
+        '<td><span class="mono">' + fmtRMB(totalRev - totalSpend) + '</span></td>' +
+      '</tr>';
+  }
+
+  const chartColors = {
+    monthly: '#6366F1', annual: '#059669',
+    revenue: '#059669', spend: '#DC2626',
+    ltv: '#4F46E5', margin: '#D97706',
+    roasMonth: '#0EA5E9', roasCum: '#4F46E5', breakEven: '#DC2626',
+    grid: 'rgba(15, 23, 42, 0.05)', text: '#94A3B8'
+  };
+
+  const baseOpts = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#0F172A',
+        titleFont: { family: 'system-ui', size: 11, weight: '600' },
+        bodyFont: { family: 'ui-monospace', size: 11 },
+        padding: 10,
+        cornerRadius: 6,
+        displayColors: true,
+        boxWidth: 8,
+        boxHeight: 8
+      }
+    },
+    interaction: { mode: 'index', intersect: false }
+  };
+  function tickFont() { return { family: 'ui-monospace', size: 10 }; }
+
+  function destroyChart(key) { if (charts[key]) { charts[key].destroy(); charts[key] = null; } }
+
+  function renderCharts(all) {
+    const r = getCurrentResult(all);
+    const labels = ['M0'].concat(r.series.map(function (p) { return 'M' + p.n; }));
+    const labelsM = r.series.map(function (p) { return 'M' + p.n; });
+    const monthlySeries = [r.startMonthly].concat(r.series.map(function (p) { return p.monthlyPayers; }));
+    const annualSeries = [r.startAnnual].concat(r.series.map(function (p) { return p.annualPayers; }));
+    const revSeries = r.series.map(function (p) { return p.revenue; });
+    const spendSeries = r.series.map(function (p) { return p.spend; });
+    const ltvSeries = r.series.map(function (p) { return p.ltvCac || 0; });
+    const marginSeries = r.series.map(function (p) { return p.cumMargin; });
+    const monthlyRoas = r.series.map(function (p) { return (p.monthlyRoas || 0) * 100; });
+    const cumRoas = r.series.map(function (p) { return (p.roas || 0) * 100; });
+    const breakEven = r.series.map(function () { return 100; });
+
+    destroyChart('users');
+    charts.users = new Chart(document.getElementById('ch-users'), {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [
+          { label: '月订', data: monthlySeries, borderColor: chartColors.monthly, backgroundColor: 'rgba(99, 102, 241, 0.10)', tension: 0.35, fill: true, pointRadius: 0, pointHoverRadius: 4, borderWidth: 2 },
+          { label: '年订', data: annualSeries, borderColor: chartColors.annual, backgroundColor: 'rgba(5, 150, 105, 0.10)', tension: 0.35, fill: true, pointRadius: 0, pointHoverRadius: 4, borderWidth: 2 }
+        ]
+      },
+      options: Object.assign({}, baseOpts, {
+        plugins: Object.assign({}, baseOpts.plugins, { tooltip: Object.assign({}, baseOpts.plugins.tooltip, { callbacks: { label: function (ctx) { return ctx.dataset.label + ': ' + fmtNum(ctx.raw); } } }) }),
+        scales: {
+          x: { ticks: { color: chartColors.text, font: tickFont(), maxRotation: 0, autoSkip: true, maxTicksLimit: 8 }, grid: { display: false } },
+          y: { ticks: { color: chartColors.text, font: tickFont(), callback: function (v) { return fmtNum(v); } }, grid: { color: chartColors.grid, drawBorder: false } }
+        }
+      })
+    });
+
+    destroyChart('rev');
+    charts.rev = new Chart(document.getElementById('ch-rev'), {
+      type: 'bar',
+      data: {
+        labels: labelsM,
+        datasets: [
+          { label: '收入', data: revSeries, backgroundColor: chartColors.revenue, borderRadius: 3, barPercentage: 0.75, categoryPercentage: 0.85 },
+          { label: '广告', data: spendSeries, backgroundColor: chartColors.spend, borderRadius: 3, barPercentage: 0.75, categoryPercentage: 0.85 }
+        ]
+      },
+      options: Object.assign({}, baseOpts, {
+        plugins: Object.assign({}, baseOpts.plugins, { tooltip: Object.assign({}, baseOpts.plugins.tooltip, { callbacks: { label: function (ctx) { return ctx.dataset.label + ': ' + fmtRMB(ctx.raw); } } }) }),
+        scales: {
+          x: { ticks: { color: chartColors.text, font: tickFont(), maxRotation: 0, autoSkip: true, maxTicksLimit: 8 }, grid: { display: false } },
+          y: { ticks: { color: chartColors.text, font: tickFont(), callback: function (v) { return fmtRMB(v); } }, grid: { color: chartColors.grid, drawBorder: false } }
+        }
+      })
+    });
+
+    destroyChart('ltv');
+    charts.ltv = new Chart(document.getElementById('ch-ltv'), {
+      type: 'line',
+      data: {
+        labels: labelsM,
+        datasets: [
+          { label: 'LTV/CAC', data: ltvSeries, borderColor: chartColors.ltv, backgroundColor: 'rgba(79, 70, 229, 0.08)', tension: 0.3, pointRadius: 0, pointHoverRadius: 4, borderWidth: 2.5, fill: true, yAxisID: 'y' },
+          { label: '累计毛利', data: marginSeries, borderColor: chartColors.margin, backgroundColor: 'transparent', tension: 0.3, pointRadius: 0, pointHoverRadius: 4, borderWidth: 2, borderDash: [5, 4], yAxisID: 'y1' }
+        ]
+      },
+      options: Object.assign({}, baseOpts, {
+        plugins: Object.assign({}, baseOpts.plugins, { tooltip: Object.assign({}, baseOpts.plugins.tooltip, { callbacks: { label: function (ctx) { return ctx.dataset.label + ': ' + (ctx.datasetIndex === 0 ? ctx.raw.toFixed(2) : fmtRMB(ctx.raw)); } } }) }),
+        scales: {
+          x: { ticks: { color: chartColors.text, font: tickFont(), maxRotation: 0, autoSkip: true, maxTicksLimit: 10 }, grid: { display: false } },
+          y: { position: 'left', ticks: { color: chartColors.text, font: tickFont(), callback: function (v) { return v.toFixed(1); } }, grid: { color: chartColors.grid, drawBorder: false }, suggestedMin: 0 },
+          y1: { position: 'right', ticks: { color: chartColors.text, font: tickFont(), callback: function (v) { return fmtRMB(v); } }, grid: { display: false } }
+        }
+      })
+    });
+
+    destroyChart('roas');
+    charts.roas = new Chart(document.getElementById('ch-roas'), {
+      type: 'line',
+      data: {
+        labels: labelsM,
+        datasets: [
+          { label: '月度 ROAS', data: monthlyRoas, borderColor: chartColors.roasMonth, backgroundColor: 'rgba(14, 165, 233, 0.10)', tension: 0.3, pointRadius: 0, pointHoverRadius: 4, borderWidth: 2, fill: true },
+          { label: '累计 ROAS', data: cumRoas, borderColor: chartColors.roasCum, backgroundColor: 'transparent', tension: 0.3, pointRadius: 0, pointHoverRadius: 4, borderWidth: 2.5 },
+          { label: '盈亏平衡', data: breakEven, borderColor: chartColors.breakEven, backgroundColor: 'transparent', tension: 0, pointRadius: 0, borderWidth: 1.5, borderDash: [4, 4] }
+        ]
+      },
+      options: Object.assign({}, baseOpts, {
+        plugins: Object.assign({}, baseOpts.plugins, { tooltip: Object.assign({}, baseOpts.plugins.tooltip, { callbacks: { label: function (ctx) { return ctx.dataset.label + ': ' + Math.round(ctx.raw) + '%'; } } }) }),
+        scales: {
+          x: { ticks: { color: chartColors.text, font: tickFont(), maxRotation: 0, autoSkip: true, maxTicksLimit: 10 }, grid: { display: false } },
+          y: { ticks: { color: chartColors.text, font: tickFont(), callback: function (v) { return Math.round(v) + '%'; } }, grid: { color: chartColors.grid, drawBorder: false }, suggestedMin: 0, suggestedMax: 200 }
+        }
+      })
+    });
+  }
+
+  function renderInsights(all) {
+    const r = getCurrentResult(all);
+    const g = state.global;
+    const body = document.getElementById('insights-body');
+    document.getElementById('insights-sub').textContent = activeMarket === 'global' ? '基于全球加权数据 · 跨市场对比' : marketsConfig[activeMarket].name + ' 单市场诊断';
+
+    let html = '';
+    let summaryClass = 'warn';
+    let summaryText = '';
+    if (r.finalLTVCAC >= 3) {
+      summaryClass = 'good';
+      summaryText = '<strong>整体健康度:良好。</strong> LTV/CAC 达 <span class="pill good">' + r.finalLTVCAC.toFixed(2) + '</span>,ROAS 累计 <span class="pill good">' + Math.round(r.finalROAS * 100) + '%</span>,单位经济跑通,可以加大投入扩量。';
+    } else if (r.finalLTVCAC >= 1.5) {
+      summaryClass = 'warn';
+      summaryText = '<strong>整体健康度:可优化。</strong> LTV/CAC 为 <span class="pill warn">' + r.finalLTVCAC.toFixed(2) + '</span>,ROAS 累计 <span class="pill warn">' + Math.round(r.finalROAS * 100) + '%</span>,处于"未流血但未起飞"的区间,需要先优化留存和转化再扩量。';
+    } else {
+      summaryClass = 'bad';
+      summaryText = '<strong>整体健康度:紧迫。</strong> LTV/CAC 仅 <span class="pill bad">' + r.finalLTVCAC.toFixed(2) + '</span>,ROAS 累计 <span class="pill bad">' + Math.round(r.finalROAS * 100) + '%</span>。每个付费用户都在亏钱,需要立即收紧投放,集中资源优化漏斗与续费。';
+    }
+    html += '<div class="diag-summary ' + summaryClass + '">' + summaryText + '</div>';
+
+    const actions = [];
+
+    if (activeMarket === 'global') {
+      const marketScores = marketIds.map(function (mid) {
+        return { mid: mid, r: all.markets[mid], ltvCac: all.markets[mid].finalLTVCAC, roas: all.markets[mid].finalROAS };
+      }).sort(function (a, b) { return a.ltvCac - b.ltvCac; });
+
+      const worst = marketScores[0];
+      const best = marketScores[marketScores.length - 1];
+
+      if (worst.ltvCac < 1.5 && best.ltvCac > worst.ltvCac * 1.3) {
+        actions.push({
+          priority: 'p1',
+          title: '【预算调度】将投放预算从 ' + marketsConfig[worst.mid].name + ' 转移到 ' + marketsConfig[best.mid].name,
+          impact: marketsConfig[worst.mid].name + ' 的 LTV/CAC 仅 <span class="pill bad">' + worst.ltvCac.toFixed(2) + '</span>,' + marketsConfig[best.mid].name + ' 高达 <span class="pill good">' + best.ltvCac.toFixed(2) + '</span>,效率差 ' + Math.round((best.ltvCac / Math.max(0.1, worst.ltvCac) - 1) * 100) + '%。预算重新分配能立即拉高整体 ROAS。',
+          steps: [
+            '把 ' + marketsConfig[worst.mid].name + ' 投放占比从 ' + Math.round(getNormalizedWeights()[worst.mid] * 100) + '% 砍到 5-10%',
+            '把 ' + marketsConfig[best.mid].name + ' 投放占比拉到 35% 以上,直到 CPI 开始明显上涨',
+            '保留 ' + marketsConfig[worst.mid].name + ' 的小预算做品牌曝光与自然量孵化,不做付费拉量'
+          ]
+        });
+      }
+    }
+
+    let lowestRenewalMid = null;
+    let lowestRenewal = 100;
+    marketIds.forEach(function (mid) {
+      const renewal = state.markets[mid].annualRenewal;
+      if (activeMarket === 'global' || activeMarket === mid) {
+        if (renewal < lowestRenewal) { lowestRenewal = renewal; lowestRenewalMid = mid; }
+      }
+    });
+    if (lowestRenewalMid && lowestRenewal < 50) {
+      const m = state.markets[lowestRenewalMid];
+      const currLife = 12 / Math.max(0.08, 1 - m.annualRenewal / 100);
+      const newLife = 12 / Math.max(0.08, 1 - 0.55);
+      const uplift = Math.round((newLife / currLife - 1) * 100);
+      actions.push({
+        priority: 'p1',
+        title: '【续费优化】将' + (activeMarket === 'global' ? marketsConfig[lowestRenewalMid].name : '当前市场') + '年订续费率从 ' + lowestRenewal + '% 提到 55%',
+        impact: '年订生命周期从 <span class="pill">' + Math.round(currLife) + ' 个月</span>延长到 <span class="pill good">' + Math.round(newLife) + ' 个月</span>,LTV 提升约 <span class="pill good">+' + uplift + '%</span>。这通常是单一杠杆里 ROI 最高的。',
+        steps: [
+          '续费前 14 天 / 7 天 / 1 天三轮 push + 邮件提醒',
+          '续费前一周推送"过去一年学习成就回顾"(学习时长 / 单词量 / 等级提升)增强 sunk cost 感',
+          'A/B 测试续费 8 折 vs 续费送 1 个月 vs 续费解锁高级功能,挑出转化最高的方案',
+          '失败续费用户进入 win-back 流程:7 天后推 7 折 + 30 天后推 5 折挽回'
+        ]
+      });
+    }
+
+    if (g.installToReg < 80) {
+      const gap = 80 - g.installToReg;
+      actions.push({
+        priority: 'p2',
+        title: '【漏斗优化】将 install→注册 转化率从 ' + g.installToReg + '% 提到 80%',
+        impact: '当前漏斗顶端流失 <span class="pill bad">' + (100 - g.installToReg) + '%</span>,提升到 80% 意味着同等投放下多 <span class="pill good">+' + Math.round((80 / g.installToReg - 1) * 100) + '%</span> 注册用户,带动等比例的付费用户增长。',
+        steps: [
+          '精简注册流程到 1 步,移除非必要字段(生日、性别等放到 onboarding 后期)',
+          '加入 Apple ID / Google / Facebook / Line(日本)/ KakaoTalk(韩国)/ Apple ID(美国主流)一键登录,建议主流渠道全开',
+          '注册前先展示 1-2 屏价值预览(15 秒交互试学),用产品价值勾住用户再要求注册',
+          '失败注册用户(填了信息但没提交)24 小时内 push 唤回 + 优惠引导'
+        ]
+      });
+    }
+
+    const sortedByCPI = marketIds.map(function (mid) {
+      return { mid: mid, cpi: state.markets[mid].cpi, organic: state.markets[mid].organic };
+    }).sort(function (a, b) { return b.cpi - a.cpi; });
+    const highestCPI = sortedByCPI[0];
+    if (highestCPI.cpi > 50 && highestCPI.organic < 35 && (activeMarket === 'global' || activeMarket === highestCPI.mid)) {
+      actions.push({
+        priority: 'p2',
+        title: '【自然量战略】提升 ' + marketsConfig[highestCPI.mid].name + ' 的自然量占比(当前 ' + highestCPI.organic + '%)',
+        impact: '该市场 CPI 高达 <span class="pill bad">¥' + highestCPI.cpi + '</span>,自然量仅 <span class="pill warn">' + highestCPI.organic + '%</span>。每 +5% 自然量等于综合 CAC 下降约 <span class="pill good">-7%</span>。',
+        steps: [
+          '本地 KOL 内容合作(' + ({
+            jp: 'YouTube / X(Twitter) / TikTok / LINE 短视频',
+            kr: 'YouTube / Instagram Reels / 与 Naver 博主合作',
+            us: 'TikTok / YouTube Shorts / Instagram Reels',
+            id: 'TikTok / Instagram / YouTube',
+            th: 'TikTok / Facebook / YouTube',
+            vn: 'TikTok / Facebook / YouTube · 注重年轻用户'
+          }[highestCPI.mid] || '本地短视频平台') + '),目标月新增 20-30 个有效达人',
+          'ASO 深度优化:本地化关键词 + 截图素材 A/B 测试,目标商店排名前 10',
+          'PR 与媒体露出:1-2 篇本地科技/学习媒体深度报道',
+          '推荐返利机制:老用户邀请新用户成功付费,双方各得 1 个月会员'
+        ]
+      });
+    }
+
+    let lowestARPPUMid = null;
+    let lowestARPPU = Infinity;
+    marketIds.forEach(function (mid) {
+      const arppu = state.markets[mid].monthlyARPPU;
+      if (activeMarket === 'global' || activeMarket === mid) {
+        if (arppu < lowestARPPU) { lowestARPPU = arppu; lowestARPPUMid = mid; }
+      }
+    });
+    if (lowestARPPUMid && lowestARPPU < 60) {
+      actions.push({
+        priority: 'p3',
+        title: '【定价策略】测试 ' + marketsConfig[lowestARPPUMid].name + ' 的价格弹性',
+        impact: '当前月订 ARPPU <span class="pill">¥' + lowestARPPU + '</span>,在主要市场中偏低。若能提价 20% 且转化率下降 < 15%,净收入仍能提升 <span class="pill good">+2%</span>。',
+        steps: [
+          '在该市场做 A/B 价格测试:维持当前价 vs 提价 20% vs 提价 30%',
+          '同时推出"轻量年付"低价 SKU(比如 ¥' + Math.round(lowestARPPU * 6) + '/年)抓价格敏感用户',
+          '高价位增加增值服务:1 对 1 真人辅导、AI 个性化路径、纸质学习材料邮寄',
+          '通过 SureChinese 已有功能差异化分层:Basic / Pro / Premium 三档定价'
+        ]
+      });
+    }
+
+    if (r.finalLTVCAC >= 3 && r.finalROAS >= 1.5) {
+      actions.push({
+        priority: 'p3',
+        title: '【扩张机会】单位经济跑通,可以加速扩量',
+        impact: 'LTV/CAC <span class="pill good">' + r.finalLTVCAC.toFixed(2) + '</span> 远超 3 的健康线。每多投入 ¥1,生命周期内带回 ¥' + r.finalLTVCAC.toFixed(1) + '。',
+        steps: [
+          '把月度投放预算上调 50-80%,关注 CPI 上涨幅度',
+          '只要 CPI 涨幅 < 30% 就持续追加,直到 LTV/CAC 触及 2.5(留出安全垫)',
+          '同步招聘投放团队,把渠道从 2-3 个扩到 5-8 个(Meta / TikTok / Snap / 本地渠道)',
+          '提前布局下一阶段壁垒:内容护城河 / 社区运营 / 推荐机制'
+        ]
+      });
+    }
+
+    if (actions.length === 0) {
+      actions.push({
+        priority: 'p3',
+        title: '【持续监控】当前指标在合理区间',
+        impact: '没有发现明显的优化短板。但订阅业务需要持续监控,任何一个环节恶化都会快速放大。',
+        steps: [
+          '每周看一次 cohort 留存(D1/D7/D30),发现下滑立即介入',
+          '每月看一次年订续费实际表现 vs 预测,校准 LTV 模型',
+          '每季度复盘各市场 ROAS,动态调整预算分配'
+        ]
+      });
+    }
+
+    const priorityOrder = { p1: 1, p2: 2, p3: 3 };
+    actions.sort(function (a, b) { return priorityOrder[a.priority] - priorityOrder[b.priority]; });
+
+    html += '<div class="action-list">';
+    html += '<h4>具体行动建议 · 按优先级排序</h4>';
+    actions.forEach(function (a) {
+      const priorityLabel = a.priority === 'p1' ? '高优' : (a.priority === 'p2' ? '中优' : '观察');
+      html += '<div class="action-item">';
+      html += '<div class="action-priority ' + a.priority + '">' + priorityLabel + '</div>';
+      html += '<div class="action-content">';
+      html += '<div class="action-title">' + a.title + '</div>';
+      html += '<div class="action-impact">' + a.impact + '</div>';
+      html += '<ol class="action-steps">';
+      a.steps.forEach(function (s) { html += '<li>' + s + '</li>'; });
+      html += '</ol>';
+      html += '</div>';
+      html += '</div>';
+    });
+    html += '</div>';
+
+    body.innerHTML = html;
+  }
+
+  function render() {
+    const all = computeAll();
+    buildMarketTabs();
+    renderKPIs(all);
+    renderMatrix(all);
+    renderCharts(all);
+    renderInsights(all);
+    document.getElementById('page-title').textContent = '未来 ' + horizon + ' 个月增长沙盘';
+    document.getElementById('scenario-tag').textContent = scenarios[scenario].label + ' · ' + horizon + ' 个月 · ' + (activeMarket === 'global' ? '全球视图' : marketsConfig[activeMarket].name);
+  }
+
+  function exportCSV() {
+    const all = computeAll();
+    const header = ['市场', '月份', '月新增install', '月新增注册', '月新增付费', '月订用户', '年订用户', '付费总数', '月度收入_¥', '累计收入_¥', '月度广告_¥', '累计广告_¥', 'CPI_¥', '有效CAC_¥', 'LTV_¥', 'LTV_CAC', 'ROAS_累计', '累计毛利_¥'];
+    const rows = ['\ufeff' + header.join(',')];
+    function addMarketRows(mid, name, result) {
+      result.series.forEach(function (p) {
+        rows.push([name, p.n, Math.round(p.installs), Math.round(p.newRegistered), Math.round(p.newPaid), Math.round(p.monthlyPayers), Math.round(p.annualPayers), Math.round(p.totalPayers), Math.round(p.revenue), Math.round(p.cumRevenue), Math.round(p.spend), Math.round(p.cumSpend), (p.cpi || 0).toFixed(2), Math.round(p.effectiveCAC || 0), Math.round(p.ltv || 0), (p.ltvCac || 0).toFixed(2), (p.roas * 100).toFixed(0) + '%', Math.round(p.cumMargin)].join(','));
+      });
+    }
+    marketIds.forEach(function (mid) { addMarketRows(mid, marketsConfig[mid].name, all.markets[mid]); });
+    addMarketRows('global', '全球汇总', all.global);
+    rows.push('');
+    rows.push('场景,' + scenarios[scenario].label);
+    rows.push('预测周期,' + horizon + ' 个月');
+    rows.push('汇率,1 USD = ' + state.global.exchangeRate + ' RMB');
+    const blob = new Blob([rows.join('\n')], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'surechinese-forecast-' + scenario + '-' + horizon + 'm-multi-market.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  function bindTopControls() {
+    document.getElementById('seg-scenario').addEventListener('click', function (e) {
+      const btn = e.target.closest('button[data-scenario]');
+      if (!btn) return;
+      document.querySelectorAll('#seg-scenario button').forEach(function (b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      scenario = btn.dataset.scenario;
+      saveState();
+      render();
+    });
+    document.getElementById('seg-horizon').addEventListener('click', function (e) {
+      const btn = e.target.closest('button[data-months]');
+      if (!btn) return;
+      document.querySelectorAll('#seg-horizon button').forEach(function (b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      horizon = +btn.dataset.months;
+      saveState();
+      render();
+    });
+    document.getElementById('btn-reset').addEventListener('click', function () {
+      if (!confirm('确定要将所有参数恢复为默认值吗?当前数据将被覆盖。')) return;
+      state = defaultState();
+      scenario = 'base';
+      horizon = 12;
+      activeMarket = 'global';
+      saveState();
+      syncControls();
+      buildGlobalParams();
+      buildMarketParams();
+      bindCollapsibles();
+      render();
+    });
+    document.getElementById('btn-export').addEventListener('click', exportCSV);
+  }
+
+  function syncControls() {
+    document.querySelectorAll('#seg-scenario button').forEach(function (b) { b.classList.toggle('active', b.dataset.scenario === scenario); });
+    document.querySelectorAll('#seg-horizon button').forEach(function (b) { b.classList.toggle('active', +b.dataset.months === horizon); });
+  }
+
+  loadState();
+  syncControls();
+  buildGlobalParams();
+  buildMarketParams();
+  bindCollapsibles();
+  bindTopControls();
+  render();
+})();
+</script>
+</body>
+</html>
